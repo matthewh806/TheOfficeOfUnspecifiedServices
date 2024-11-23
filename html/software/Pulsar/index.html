@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matthew</title>
+</head>
+
+<body>
+    <h1>Pulsar</h1>
+
+    <img src="assets/pulsar.gif" alt="Pulsar", width="500px">
+    <h2>Overview</h2>
+
+    <p>I always enjoyed the <a href="https://www.youtube.com/watch?v=SHoDUCAd4-I">Tombola Sequencer</a> on the Teenage Engineering OP-1</p>
+
+    <p>
+      I thought it would be nice to have a version which didn't require you to break the bank and buy an OP-1. I did a bit of research beforehand
+      and didn't find many examples of people implementing it for mac / windows / linux 
+      (Though, saying that, there is <a href="https://github.com/teesloane/laundromat">Laundromat</a> which looks quite nice, but admittedly I didn't
+      try it out because I wanted to go through the coding exercise myself.)
+    </p>
+
+    <p>
+      So, anyway, what is it? Well, its a random sequencer based on polygon worlds and balls bouncing around inside that world colliding and 
+      sending out midi notes - if you have a synth or a DAW listening on the right midi channel, you might just hear some sound.
+    </p>
+    <p>
+      Each ball in the world is associated with a specific MIDI note and when it collides with the edges of the world or any other balls that note will play.
+      The range of notes can be played in via a MIDI or randomly assigned (see below)
+    </p>
+
+    <h2>Download</h2>
+    <p>
+      A very early version can be downloaded <a href="assets/Pulsar-v0.0.1-macOS.zip">here</a>.
+    </p>
+    <p>
+      Note 1: this has only been tested on macOS at this stage - so may not work on Windows / Linux (but maybe it will!)
+    </p>
+    <p>
+      Note 2: I don't have a personal Apple developer account and so, unfortunately, the zip is not signed / notarised. 
+      This means 
+      <ol>
+          <li>You'll have to trust me not to do anything nefarious</li>
+          <li>Go into System Preferences -> Security Privacy and allow the software to be run</li>
+      </ol>
+    </p>
+    <p>
+      All of the dependencies are bundled into the application - so there's no need to install any extra software
+    </p>
+
+    <h2>Usage</h2>
+
+    <p>
+      It is simply a standalone application at the moment (though really... it should be a VST...), so after unzipping & double clicking the icon 
+      you should be presented with the following:
+    </p>
+
+    <img src="assets/pulsar_default_state.png" alt="Pulsar Default", width="500px">
+
+    <h3>Midi</h3>
+
+    Firstly note that this application does not do any sound generation of its own - its simply a MIDI sequencer which takes in and passes on midi 
+    information from / to other devices. 
+
+    <p>
+      At the top are dropdown boxes to control the Midi In / Out ports and channels
+      <ul>
+        <li>Midi In: This allows you to play in desired notes. When a MIDI note is triggered from an external device a new ball will be born in the world
+          and be associated with the Note played in. 
+        </li>
+        <li>Midi Out: This is the device to which the MIDI information is sent when a collision occurs. Note: This device will be responsible for generating the sound</li>
+      </ul>
+    </p>
+
+    <p>
+      If you are working entirely within the box, with virtual / software instruments you probably need some specific routing software. 
+      For macOS I recommend looking into the <a href="https://support.apple.com/en-gb/guide/audio-midi-setup/ams1013/mac">IAC Driver</a> to handle this.
+    </p>
+
+    <h3>Controls</h3>
+    <p>
+      Once the MIDI is set up as desired with a synth / DAW, the first thing to do is to check you get some sound out so just click randomly
+      a couple of times inside the polygon and you should hear something each time a collision occurs. 
+    </p>
+    <p>
+      Pressing the "h" key will bring up a small help menu describing further controls to manipulate the universe - such as rotation, edge separation etc
+    </p>
+    <p>
+      Keys 3-9 will generate a new world with a polygon with sides corresponding to the number you pressed (note: 9 crashes the application currently...)
+    </p>
+    <p>
+      When clicking inside the polygon notes are randomly generated across the whole MIDI note range, if you wish to constrain the values to a particular
+      scale and / or key, use the drop down menus at the bottom. This will lead to more harmonious results. 
+    </p>
+
+    <h2>Examples</h2>
+    <p>Here are a few quick video demonstrations of how to use it using soft synths: </p>
+
+    <p>
+      The first example shows its usage with a standalone soft synth (Arturia's Pigments in this case). Note the MIDI routing settings
+      in both Pulsar and Pigments
+    </p>
+    <video width="720" controls>
+      <source src="assets/pigments_demo_scaled.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+    </video>
+
+    <p>
+      This example shows how to set up a MIDI channel with a VST loaded in Ableton, again, notice the MIDI routing settings
+    </p>
+    <video width="720" controls>
+      <source src="assets/ableton_demo_scaled.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+    </video>
+
+</body>

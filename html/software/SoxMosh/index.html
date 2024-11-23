@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matthew</title>
+</head>
+
+<body>
+    <h1>SoxMosh</h1>
+
+    <img src="assets/perfect_face_echo_example.png" alt="Perfect Echo", width="500px">
+
+    <h2>Overview</h2>
+    <p>
+        This is a python command line application for manipulating images by applying audio effects to them.
+    </p>
+
+    <p>
+        The idea was inspired by some initial approaches I tried using <a href="http://datamoshing.com/2016/06/15/how-to-glitch-images-using-audio-editing-software/">
+        Audacity</a>, which while fun is quite a tedious process and prone to errors. 
+    </p>
+
+    <p>Since the approach is completely non-visual anyway I figured that writing some simple code to handle the transformations wouldn't go against the spirit of the endeavour.
+    </p>
+    
+    <p>
+        The project is based around <a href="https://github.com/rabitt/pysox">pysox</a> which is itself a wrapper around the <a href="http://sox.sourceforge.net/">SoX</a> tool.
+    </p>
+    
+    <p>
+        Note: I am far from the first to try this idea out. Two resources I used for inspiration & reference are:
+        <ul>
+            <li><a href="https://github.com/Roachbones/sockbend">sockbend</a> - Roachbones</li>
+            <li><a href="https://shailendra.me/blog/tutorial/databending-on-command-line-audio-sox/">Databending images with a command line audio processing utlity</a> - Shailendra Paliwal</li>
+        </ul>
+    </p>
+
+    <h2>Webapp</h2>
+    <p>
+        The most direct way to try this out is to use this <a href="http://theofficeofunspecifiedservices.com/software/soxmoshapp/">webapp</a>
+    </p>
+
+    <h2>Download</h2>
+    <p>
+        A very early version can be downloaded <a href="assets/SoxMosh-v0.0.3-macOS.zip">here</a>.
+    </p>
+    <p>
+        Note 1: this has only been tested on macOS at this stage - so may not work on Windows / Linux (but maybe it will!)
+    </p>
+    <p>
+        Note 2: I don't have a personal Apple developer account and so, unfortunately, the zip is not signed / notarised. 
+        This means 
+        <ol>
+            <li>You'll have to trust me not to do anything nefarious</li>
+            <li>Go into System Preferences -> Security Privacy and allow the software to be run</li>
+        </ol>
+    </p>
+    <p>
+        All of the dependencies are bundled into the application - so there's no need to install any extra software
+    </p>
+    <h2>Usage</h2>
+    <p>
+        At this stage the usage is fairly simple, but requires using a terminal / console application 
+    </p>
+    <p>
+        <ol>
+            <li>Unzip the downloaded archive and open a terminal window inside the newly created directory</li>
+            <li>Run with the following pattern: ./soxmosh_cli input_image output_image effects</li>
+                <ul>
+                    <li>
+                        input_image / output_image: These are paths to the input / output image destinations (output_image doesn't necessarily need to exist already)
+                    </li>
+                    <li>effects: This is a path to a json file containing arrays of effects to apply (see below)</li>
+                </ul>
+            <li>
+                Try ./soxmosh_cli perfect_blue_face.bmp perfect_face_moshed.bmp example_effects.json directly to see an example using a provided image & effects data file
+            </li>
+        </ol>
+    </p>
+
+    <h2>How does it work?</h2>
+    <p>
+        <p>
+        The reason this works is due to the way a computer interprets media such as audio & images. Though we have dedicated audio software to 
+        handle reading & playback of sounds, image software for displaying & editing images, video software... etc, these are really just specific ways of
+        interpreting the data or information contained in a media file. Of course different encodings exist, various compression algorithms etc which complicate
+        this view somewhat - but essentially the computer is just acting on binary streams of 0s and 1s without really seeing the forest for the trees.
+        </p>
+
+        <p>
+        One of the keys to applying this kind of audio effect treatment to images is the ability of SoX to load in data in a <i>raw</i> format. Formats like WAV, 
+        FLAC, MP3 etc are "self-describing", in that they contain a header file which describes aspects of the audio data such as sample-rate, number of 
+        channels, length, encoding etc. In this case because all of the pertinent details are contained in the header, SoX can figure out how to interpret the data
+        itself.</br> 
+        Raw formats don't contain such a header and therefore in order to interpret the data as expected this information must 
+        be explicitly provided to SoX. This allows us to manipulate SoX to our own ends. We specify the data encoding to be <a href="https://en.wikipedia.org/wiki/A-law_algorithm">a-law</a> 
+        (though I can't claim to know why this particular encoding works while others don't...) which expects each sample to be 8-bit (this will be important later).
+        </br></br>
+        
+        It then becomes quite simple to input an image to sox on the command line and have it output that same image: </br>
+        <code>sox -t al -c 1 -r 48k path/to/image.bmp -t al path/to/output.bmp</code>
+        </br></br>
+
+        This is obviously a totally pointless example as it just outputs a 1:1 copy of the same image (in fact even this isn't really true - I do spot some 
+        artefacts appearing) but it shows that by specifying <code>-t al</code> flag, which sets the filetype to be a-law, we can pass through image data.
+        <br></br>
+
+        <img src="assets/perfect_blue_face.png" alt="Perfect Original", width="500px">
+        <img src="assets/perfect_blue_face_moshed.png" alt="Perfect Moshed", width="500px">
+
+        </br>
+        We've told SoX that we're working with raw data - but that isn't actually true, its just a nice hack. We're working with bitmap files which actually do
+        have a header. Using that header we can figure out where the data portion actually begins and <i>only perform our operations from that point in the data</i> 
+        (i.e. removing the header, performing our transformations & then finally reattaching the header to the modified block of data) this avoids corrupting the header.
+        </p>
+
+        <p>
+        So, now we're ready to look into what SoX actually does to our data to achieve these effects. Its useful to briefly look into what happens to audio data first
+        to get a feel for what we can expect to see. The simplest and clearest demonstration is probably the delay effect:
+        <br>
+        <i>delay {position(=)}: Delay one or more audio channels such that they start at the given position.</i>
+        <br><br>
+        This has the effect of offsetting all of the data samples by a given number of seconds. The resulting output contains <i>only</i> the delayed samples, 
+        i.e. its 100% wet, it doesn't include any of the <i>dry</i> original samples
+        </p>
+        
+        <h3>Adding a delay effect to audio</h3>
+
+        We will work with this simple synth note from an SH101:<br>
+        <audio src="assets/tiny_rave_SH101_C4.wav" controls></audio>
+        <br><br>
+
+        This file contains 11680 audio samples, which at a sampling rate of 44100 Hz corresponds to a length of 0.264 seconds<br><br>
+
+        Running the command:<br><br>
+        <code>sox tiny_rave_SH101_C4.wav tiny_rave_SH101_C4_out.wav delay 1.0</code> <br><br>
+        Has the effect of creating a new wav file with the samples delayed by 1.0 seconds:<br>
+        <audio src="assets/tiny_rave_SH101_C4_out.wav" controls></audio>
+        <br><br>
+
+        This file contains 55780 audio samples, which with the same sampling rate corresponds to 1.264 seconds of audio. This is quite self explanatory
+        and is in line with what we expected.
+        <br>
+        To belabor the point if we look at the first 50 samples of the audio signal data contained within the original file:
+
+        <pre>
+            <code>
+            [ 0.00000000e+00 -2.05039978e-05 -9.76562500e-04 -4.47976589e-03
+            -9.54377652e-03 -1.52943134e-02 -2.14105845e-02 -2.78952122e-02
+            -3.46711874e-02 -4.15842533e-02 -4.85666991e-02 -5.54741621e-02
+            -6.22984171e-02 -6.83031082e-02 -7.33066798e-02 -7.80060292e-02
+            -8.25167895e-02 -8.67084265e-02 -9.07150507e-02 -9.43706036e-02
+            -9.76780653e-02 -1.00758076e-01 -1.03464842e-01 -1.05913758e-01
+            -1.07764721e-01 -1.09514713e-01 -1.10503912e-01 -1.11728311e-01
+            -1.11741304e-01 -1.12472177e-01 -1.10652328e-01 -1.13386512e-01
+            -7.16021061e-02  1.30800843e-01  2.30443716e-01  2.74714947e-01
+            3.09366226e-01  3.36177826e-01  3.61080170e-01  3.82261157e-01
+            4.03543711e-01  4.21683312e-01  4.40880895e-01  4.54923272e-01
+            4.70372915e-01  4.83487487e-01  4.98167157e-01  5.10751724e-01
+            5.24211765e-01  5.37293554e-01]
+            </code>
+        </pre>
+
+        Clearly showing audio amplitude data as we would expect.<br></br>
+
+        Doing the same for the delayed audio file yields:
+
+        <pre>
+            <code>
+                [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+                0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+                0. 0.]
+            </code>
+        </pre>
+
+        Once again this is what we expect to see considering we've shifted all of the samples by 1 second. In order to find the data in the array
+        we have to index from the sample equivalent of 1.0s, which with our 44100 Hz sample rate is actually just sample 44100 (sample = time * sampling-rate), 
+        yielding:
+
+        <pre>
+            <code>
+                [ 0.00000000e+00 -2.05039978e-05 -9.76562500e-04 -4.47976589e-03
+                 -9.54377652e-03 -1.52943134e-02 -2.14105845e-02 -2.78952122e-02
+                 -3.46711874e-02 -4.15842533e-02 -4.85666991e-02 -5.54741621e-02
+                 -6.22984171e-02 -6.83031082e-02 -7.33066798e-02 -7.80060292e-02
+                 -8.25167895e-02 -8.67084265e-02 -9.07150507e-02 -9.43706036e-02
+                 -9.76780653e-02 -1.00758076e-01 -1.03464842e-01 -1.05913758e-01
+                 -1.07764721e-01 -1.09514713e-01 -1.10503912e-01 -1.11728311e-01
+                 -1.11741304e-01 -1.12472177e-01 -1.10652328e-01 -1.13386512e-01
+                 -7.16021061e-02  1.30800843e-01  2.30443716e-01  2.74714947e-01
+                 3.09366226e-01  3.36177826e-01  3.61080170e-01  3.82261157e-01
+                 4.03543711e-01  4.21683312e-01  4.40880895e-01  4.54923272e-01
+                 4.70372915e-01  4.83487487e-01  4.98167157e-01  5.10751724e-01
+                 5.24211765e-01  5.37293554e-01]
+            </code>
+        </pre>
+        which is exactly the same amplitude data as we saw at the beginning of the original file.<br><br>
+
+        What is important to note here is that the sample data is just translated in time, but the acual amplitude values remain unaffected. 
+        Other effects like compression, reverb, echoes etc will affect some combination of the temporal sample position & the amplitude
+        values themselves (i.e. changing the shape of the overall signal). This is what makes delay an ideal candidate for exploring the impact on
+        images. 
+
+        <h3>Adding a delay effect to an image</h3>
+        <p>
+        The first thing to do is to get a small & simple bitmap file to work with in order to clearly see what is going on. This won't necessarily give
+        us an interesting image to look at, but it will help uncover some of the mystery (I hope!).
+        </br>
+        For this I've copied the bitmap data from <a href="https://medium.com/sysf/bits-to-bitmaps-a-simple-walkthrough-of-bmp-image-format-765dc6857393">this</a>
+        blog by Uday Hiwarale. Well worth a read if you want to understand more about the bitmap format.
+        </p>
+        <p>
+        This is the bitmap data we're going to be dealing with:
+        <pre>
+            <code>
+                42 4D
+                00 00 00 00
+                00 00
+                00 00
+                36 00 00 00
+
+                28 00 00 00
+                05 00 00 00
+                05 00 00 00
+                01 00
+                18 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+
+                FF FF FF   00 00 00   00 00 00   00 00 00   00 FF FF   00
+                00 00 00   00 00 00   00 00 00   00 00 00   00 00 00   00
+                00 00 00   00 00 00   00 FF 00   00 00 00   00 00 00   00
+                00 00 00   00 00 00   00 00 00   00 00 00   00 00 00   00
+                00 00 FF   00 00 00   00 00 00   00 00 00   FF 00 00   00
+            </code>
+        </pre>
+
+        If you copy and paste that into an application like <a href="https://hexfiend.com/">hexfiend</a> (for macOS) and save the file wih a bitmap extension
+        you should be able to view the (tiny! so zoom in a lot) image we've created: <br><br>
+
+        <img src="assets/test_bmp.png" alt="test bitmap" width="250px">
+        <br><br>
+        
+        In the hex data everything up to the final block (starting with FF FF FF) is <i>header</i> information.<br>
+        The most important points to note are:
+        <ul>
+            <li>42 4D (line 1) - This corresponds to a 2 character ASCII string "BM". This informs the program that we're dealing with a bitmap image</li>
+            <li>36 00 00 00 00 (line 5) - This corresponds to an integer representing the offset bytes to where the pixel data begins. 
+                Note: This corresponds to the header size, 54 bytes in this case. 
+            </li>
+            <li>05 00 00 00 (line 7 / 8) - These lines correspond to the image width / height respectively</li>
+            <li>18 00 (line 10) - Represents the bits per pixel. In this case it corresponds to 24 bit - meaning we have 8 bits to represent each channel (BGR)</li>
+        </ul>
+        </br>
+        In this encoding we represent a single pixel by 3 bytes, allowing us to specify 0-255 colours in each channel. Note that the order the bytes are intepreted
+        is BGR, which kind of feels backwards. Another peculiarity is that the image data is read from the bottom left most 24 bits in the pixel data, moving right
+        and then up. The bottom left 24 bits correspond to the <i>first</i> pixel in the image (i.e. top left). This means that in our example:
+        <ul>
+            <li>00 00 FF - red pixel at the top left corner</li>
+            <li>FF 00 00 - blue pixel at the top right</li>
+            <li>FF FF FF - white pixel at the bottom left</li> 
+            <li>00 FF FF - yellow pixel at the bottom right</li>
+        </ul> 
+        The rest should be self evident.
+        </p>
+        <p>
+        Now if we take that image as our input and run the following in the python command line for SoxMosh: <br><br>
+        <code>./soxmosh_cli test.bmp test_output.bmp delay.json --sample-rate=60</code> <br><br>
+        Where delay.json is a file simply containing: <br><br>
+        <code>
+            {
+                "effects":
+                [
+                    {"delay": {"positions":[0.05]}}
+                ]
+            }            
+        </code>
+        <br><br>
+        We obtain as output: <br><br>
+        <img src="assets/test_output_bmp.png" alt="test bitmap output" width="250px"><br><br>
+
+        And the corresponding hex data:
+        <pre>
+            <code>
+                42 4D
+                00 00 00 00 
+                00 00 
+                00 00
+                36 00 00 00 
+
+                28 00 00 00 
+                05 00 00 00 
+                05 00 00 00
+                01 00 
+                18 00 
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00 
+                00 00 00 00 
+                00 00 00 00
+
+                FF FF FF   FF FF FF   00 00 00   00 00 00   00 00 00   00
+                FF FF 00   00 00 00   00 00 00   00 00 00   00 00 00   00
+                00 00 00   00 00 00   00 00 00   00 FF 00   00 00 00   00
+                00 00 00   00 00 00   00 00 00   00 00 00   00 00 00   00
+                00 00 00   00 00 FF   00 00 00   00 00 00   00 00 00   FF
+                00 00 00
+            </code>
+        </pre>
+        This isn't exactly what we expect to see based on our previous analysis of how the delay deals with samples - some of these 
+        discrepencies I can explain, some I can't.<br>
+
+        <h4>What worked?</h4>
+        The top left red pixel moved to the right as expected, as did the green middle block. They appear to have moved by 1 pixel. This is 
+        as a result of experimenting with the sample rate and delay time to get it just right. <br>
+        Notice the sample rate = 60 Hz, well, what does this really mean for an image? Its obviously related to the time in some way since the unit
+        is 1/s, if I choose a higher value (e.g. >= 200 Hz) then I simply end up with a white image - obviously thats too high for a 5x5 pixel image. 
+        So I landed on 60 Hz as something that worked. <br><br>
+
+        Now, the u / a-law encoding schemes that we're using expect 8-bit audio samples, but as previously mentioned our bitmap encoding scheme uses 
+        24 bits for a single pixel, this means that shifting everything in the image by 1 sample (8 bits) will have the effect of shifting each byte 
+        place to the right. For e.g. a blue FF 00 00 pixel would become 00 FF 00, which results in shifting the <i>colour</i> of the pixel to green
+        and occupying the same space in the image, what we desire is in fact considering two neighbouring pixels, FF 00 00 00 00 00 -> 00 00 00 FF 00 00
+        which has the effect of moving the blue pixel one space to the right and preserving the colour. i.e. we want to shift 3 samples across <br><br>
+
+        In order to achieve this I've used 0.05s as the delay time, since that corresponds to a 3 sample shift (0.05 * 60). 
+        <br><br>
+        We also observe that the blue pixel which occupied the top right has gone - thats simply because we've retained the same size image and so its
+        been delayed out of existence. <br>
+        The yellow pixel has disappeared, but the delayed position is occupied by a light blue pixel (FF FF 00). This is
+        due to the fact that each row is zero padded (the 00's) to the nearest 4 byte boundary, i.e. 15 -> 16 bytes. So that when we perform our shift
+        of the 00 FF FF pixel, it actually goes through the 00 padding and hence changes colour in the process. This pixel would actually need a 3 pixel
+        shift in order to retain its colour. 
+        </p>
+        <h4>What didn't work</h4>
+        <p>
+            The bottom left white pixel was correctly shifted to the right - but it also left behind a white pixel, not a black one as would be expected.<br>
+
+            Here we can see the issue with our white pixels, instead of simply shifting FF FF FF 00 00 00 -> 00 00 00 FF FF FF as we would expect,
+            we see FF FF FF 00 00 00 -> FF FF FF FF FF FF. I.e.it has simply created a new white pixel for us!<br>
+            In addition the file size has increased from 134 bytes to 137
+
+        </p>
+    </p>
+</body>

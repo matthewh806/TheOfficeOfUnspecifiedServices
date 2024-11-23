@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matthew</title>
+  <link rel="stylesheet" type="text/css" href="assets/main.css">
+</head>
+
+<body>
+<h1>Fried Chicken</h1>
+<marquee
+  direction="down"
+  width="400"
+  height="400"
+  behavior="alternate"
+  scrollamount="10"
+  style="border:transparent ">
+  <marquee behavior="alternate">
+    <img src="assets/chicken3.png">
+    <img src="assets/chicken3.png">
+  </marquee>
+</marquee>
+<marquee
+  direction="down"
+  width="400"
+  height="400"
+  behavior="alternate"
+  scrollamount="6"
+  style="border:transparent ">
+  <marquee behavior="alternate">
+    <img src="assets/chicken3.png">
+    <img src="assets/chicken3.png">
+  </marquee>
+</marquee>
+<marquee
+  direction="down"
+  width="800"
+  height="800"
+  behavior="alternate"
+  scrollamount="20"
+  style="border:transparent ">
+  <marquee behavior="alternate">
+    <img src="assets/fishstick1.png" class="rotate">
+  </marquee>
+</marquee>
+
+<script>
+function PIMG() {
+	let img = $('#img');
+  let box = $('#banner-message');
+ 	let boxWidth = box.width();
+    
+  img.css({
+  	"position": "relative",
+    "left": Math.floor(Math.random() * ( boxWidth - 0 + 1) + 0 ) // this selects a random number between 0 and the box width
+  });
+}
+
+$(document).ready(function() {
+	PIMG();
+});
+
+</script>
+
+
+</body>

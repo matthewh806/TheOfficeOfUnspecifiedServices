@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matthew</title>
+  <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+</head>
+
+<body>
+  <pre>
+
+
+
+             .---.            ,--,                                ____                      ___                               ____
+            /. ./|          ,--.'|                              ,'  , `.                  ,--.'|_                           ,'  , `.
+        .--'.  ' ;          |  | :               ,---.       ,-+-,.' _ |                  |  | :,'   ,---.               ,-+-,.' _ |
+       /__./ \ : |          :  : '              '   ,'\   ,-+-. ;   , ||                  :  : ' :  '   ,'\           ,-+-. ;   , ||
+   .--'.  '   \' .   ,---.  |  ' |      ,---.  /   /   | ,--.'|'   |  || ,---.          .;__,'  /  /   /   |         ,--.'|'   |  ||    .--,
+  /___/ \ |    ' '  /     \ '  | |     /     \.   ; ,. :|   |  ,', |  |,/     \         |  |   |  .   ; ,. :        |   |  ,', |  |,  /_ ./|
+  ;   \  \;      : /    /  ||  | :    /    / ''   | |: :|   | /  | |--'/    /  |        :__,'| :  '   | |: :        |   | /  | |--', ' , ' :
+   \   ;  `      |.    ' / |'  : |__ .    ' / '   | .; :|   : |  | ,  .    ' / |          '  : |__'   | .; :        |   : |  | ,  /___/ \: |
+    .   \    .\  ;'   ;   /||  | '.'|'   ; :__|   :    ||   : |  |/   '   ;   /|          |  | '.'|   :    |        |   : |  |/    .  \  ' |
+     \   \   ' \ |'   |  / |;  :    ;'   | '.'|\   \  / |   | |`-'    '   |  / |          ;  :    ;\   \  /         |   | |`-'      \  ;   :
+      :   '  |--" |   :    ||  ,   / |   :    : `----'  |   ;/        |   :    |          |  ,   /  `----'          |   ;/           \  \  ;
+       \   \ ;     \   \  /  ---`-'   \   \  /          '---'          \   \  /            ---`-'                   '---'             :  \  \
+        '---"       `----'             `----'                           `----'                                                         \  ' ;
+    ,---,                        ____                                                                                                   `--`
+  ,--.' |                      ,'  , `.
+  |  |  :       ,---.       ,-+-,.' _ |
+  :  :  :      '   ,'\   ,-+-. ;   , ||
+  :  |  |,--. /   /   | ,--.'|'   |  || ,---.
+  |  :  '   |.   ; ,. :|   |  ,', |  |,/     \
+  |  |   /' :'   | |: :|   | /  | |--'/    /  |
+  '  :  | | |'   | .; :|   : |  | ,  .    ' / |
+  |  |  ' | :|   :    ||   : |  |/   '   ;   /|
+  |  :  :_:,' \   \  / |   | |`-'    '   |  / |
+  |  | ,'      `----'  |   ;/        |   :    |
+  `--''                '---'          \   \  /
+                                       `----'
+
+  </pre>
+  <p>
+    music is <a href="music/index.html">here</a>
+  </p>
+  <br>
+  <p align="center">
+  <iframe width="832" height="372.5" src="https://www.youtube.com/embed/523TCVcfqXU" title="He doesn't know" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </p>
+  <p>
+    software / code is <a href="software/index.html">here</a>
+  </p>
+  <p>
+    <a href="movies/index.html">movies</a> that I've watched
+  </p>
+  <p>
+    <a href="imagined_pages/index.html">imagined pages</a>
+  </p>
+  <br>
+  <a href="friedchicken/index.html">
+     <img alt="sxclips" src="assets/img/lips.jpg">
+  </a>
+  <br>
+  <br>
+  <br>
+  <audio id="random-player" src="http://192.168.1.10/music/tracks/ambient/california_weed.mp3" controls></audio>
+
+  <a href="living_spaces/index.html">
+    <img alt="question" src="assets/img/question.png" width=50, height=150 style="float:right">
+  </a>
+
+  <script>
+    var songs =
+    [
+      "music/tracks/experimental/either_it_is_raining_or_it_is_not_raining.mp3",
+      "music/tracks/experimental/nomos.mp3",
+      "music/tracks/mattchou_jams/being_afraid.mp3",
+      "music/tracks/mattchou_jams/take_you_all_the_way.mp3",
+      "music/tracks/mattchou_jams/eating_me_alive.mp3",
+      "music/tracks/covers/tugboat.mp3",
+      "music/tracks/dubby/inevitable_becomes_evitable_master.mp3",
+      "music/tracks/dubby/vanuatu_tanna_master.mp3",
+      "music/tracks/dubby/give_me_immortality.mp3",
+      "music/tracks/ambient/california_weed.mp3",
+      "music/tracks/ambient/dai_thomas_has_got_his_waistcoat_on_beat.mp3",
+      "music/tracks/ambient/ourselves_obscured.mp3",
+      "music/tracks/ambient/like_him.mp3",
+      "music/tracks/ambient/harish_lifeboat.mp3",
+      "music/tracks/vaporwave/leave_it_all_behind.mp3",
+      "music/tracks/post_punk/kenopsic.mp3",
+      "music/tracks/house/the_magic_stick.mp3",
+      "music/tracks/house/what_you_gotta_do.mp3",
+      "music/tracks/house/spin_mix.mp3",
+      "music/tracks/breakbeat/tu_as_encore_oublie_le_lait.mp3",
+      "music/tracks/techno/picket_signs.mp3"
+    ];
+    
+    var randomIndex = Math.floor(Math.random() * songs.length);
+    var song = songs[randomIndex];
+    document.querySelector("#random-player").src = song;
+  </script>
+</body>
+
+</html>

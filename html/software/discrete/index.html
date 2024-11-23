@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matthew</title>
+</head>
+
+<body>
+    <h1>Discrete Music</h1>
+
+    <p>A recreation of Brian Eno's <a href="https://www.youtube.com/watch?v=jl_z5JvrKlc">Discrete Music</a> as a Pure Data patch.</p>
+    <p>The motivation & inspiration for creating this came from 
+        <a href="https://teropa.info/blog/2016/07/28/javascript-systems-music.html#brian-enodiscreet-music1975">javascript systems music</a>
+    </p>
+
+    <h2>Download</h2>
+    <p>
+      An early version can be downloaded <a href="assets/discrete_v0.8.zip">here</a>.
+    </p>
+    <p>
+      <b>Note: </b> this has only been tested on macOS at this stage - so may not work on Windows / Linux (but maybe it will!)
+    </p>
+    <p>
+      All of the dependencies are bundled into the zip folder, so it should run without having to modify any pure data paths
+    </p>
+
+    <h2>Usage</h2>
+    <p>Unzip the downloaded archive and open the <b>discrete.pd</b></p>
+
+    <h2>Patch Breakdown</h2>
+    <p>This is probably the most complex patch I've made in pure data...</p>
+
+    <figure>
+        <img src="assets/discrete_music_diagram.jpg" alt="Discrete Diagram"> 
+        <figcaption>Diagram for the original Discrete Music found in the vinyl liner notes 
+            (Image stolen from <a href="https://reverbmachine.com/blog/deconstructing-brian-eno-music-for-airports/">here</a>)</figcaption>
+    </figure>
+
+    <h3>Front End</h3>
+    <figure>
+        <img src="assets/patch_front_end.png" alt="Front end" width="500">
+        <figcaption>
+            I wanted to hide the monstrosity of the underlying patch away behind a vaguely nice front end. <br>
+            The big green button starts / stops the whole thing.
+        </figcaption>
+    </figure>
+
+    <h3>The horror begins...</h3>
+    <figure>
+        <img src="assets/main_subpatch.png" alt="main subpatch" width="800">
+        <figcaption>
+            This is the main subpatch which glues together all of the various abstractions which make up the system
+            Hopefully its not too difficult to follow the flow through this subpatch.<br>
+
+            Basically the big green toggle button from earlier resets the clock when its set to "ON" and outputs sixteenth notes at a 
+            frequecy specified by the BPM. <br>
+            These sixteenth notes are picked up by the "Loop Counters". </br>
+        </figcaption>
+    </figure>
+
+    <figure>
+        <img src="assets/loop_counter.png" alt="loop-counter" width="800">
+        <figcaption>
+            The loop counter allows us to specify a loop of an arbitary number of measures & outputs the absolute time <i>from the beginning</i> of the loop
+            that we are currently at. </br>
+
+            The loop time resets to zero when the specified number of measures has elapsed<br>
+
+            This allows the system to scheduling repeating events in time.
+        </figcaption>
+    </figure>
+
+    <h3>Sequencing</h3>
+
+    Now that we have a way of constructing loops of a specified length we can begin to start thinking about sequencing events.  
+
+    <figure>
+        <img src="assets/left_channel_sequence.png" alt="sequence" width="800">
+        <figcaption>
+            This diagram shows the sequence for the left hand audio channel.<br> 
+            Each event is made up of:
+            <ul>
+                <li>Start time</li>
+                <li>Midi note</li>
+                <li>Duration</li>
+                <li>Retrigger flag</li>
+            </ul>
+        </figcaption>
+    </figure>
+
+    <p>These events will be triggered sequentially, based on their Start Time <br>
+        The logic for determininng <i>when</i> to trigger the event is handled by the <b>Note Event </b>abstraction:
+    </p>
+
+    <figure>
+        <img src="assets/note_event.png" alt="note_event" width="800">
+        <figcaption>
+            The logic here is fairly primitive and simply checks if the <b>current loop time</b> matches the <b>start time</b><br>
+            Emitting the <b>note event</b> message when true.
+        </figcaption>
+    </figure>
+
+    <h3>Synthesize Me</h3>
+
+    <figure>
+        <img src="assets/duosynth.png" alt="duosynth" width="800">
+        <figcaption>
+            The <b>note events</b> are used to trigger the <b>Duosynths</b> (of which there are two, one for each channel)<br>
+            This follows a fairly standard subtractive synth architecture. <br>
+            It is made up of two sawtooth waves running at the same frequency, with a small amount of subtle vibrato added <br>
+
+            There are two envelopes controlling the volume contour and filter cutoff frequency respectively
+
+        </figcaption>
+    </figure>
+
+    <h3>Echo & Frippertronics</h3>
+    <p>
+        This is really the core of the whole idea. There are two separate delay processes going on. <br>
+        The first is just a simple sixteenth note echo with a small amount of feedback <br>
+        The second is a much longer (~6.0s) delay with a much higher feedback, which results
+        in our sounds repeating in time, cascading and swelling up over each other.
+    </p>
+
+    <figure>
+        <img src="assets/delay.png" alt="delay" width="800">
+        <figcaption>The patch for each is the same, all that differs is the delay time & feeback parameters</figcaption>
+    </figure>
+
+</body>

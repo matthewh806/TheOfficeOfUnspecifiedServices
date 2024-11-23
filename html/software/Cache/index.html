@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matthew</title>
+</head>
+
+<body>
+    <h1>Cache</h1>
+
+    <h2>Overview</h2>
+    <p>This is an application written in Python to perform audio <a href="https://en.wikipedia.org/wiki/Steganography">steganography</a> 
+       which is the process of hiding a message you want to be secret inside of another object. 
+    </p>
+    <p>
+       Steganography takes many different forms and messages can be obfuscated in a variety of different media.
+       This application focuses on a specific type of Audio Steganography which exploits the frequency range
+       the average human adult can hear. The range of frequencies which can be percieved is roughly in the range of 20Hz - 17 kHz.
+       This means that we can take an audio recording that we want to hide in plain site and apply a transformation to it
+       which shifts the message outside of the range of human hearing & hide it within another audio recording. 
+       
+       A special operation can be performed to retrieve the hidden secret message from the combined audio file.
+    </p>
+
+    <p>
+      To read more about this specific form of frequency domain steganography look <a href="https://www.clear.rice.edu/elec301/Projects01/smokey_steg/freq.html#top">here</a>
+      This was my primary reference source in developing the software
+    </p>
+
+    <h2>Download</h2>
+    <p>
+      A very early version can be downloaded <a href="assets/Cache-v0.0.2-macOS.zip">here</a>.
+    </p>
+    <p>
+      Note 1: this has only been tested on macOS at this stage - so may not work on Windows / Linux (but maybe it will!)
+    </p>
+    <p>
+      Note 2: I don't have a personal Apple developer account and so, unfortunately, the zip is not signed / notarised. 
+      This means 
+      <ol>
+          <li>You'll have to trust me not to do anything nefarious</li>
+          <li>Go into System Preferences -> Security Privacy and allow the software to be run</li>
+      </ol>
+    </p>
+    <p>
+      All of the dependencies are bundled into the application - so there's no need to install any extra software
+    </p>
+
+    <h2>Usage</h2>
+    <p>At this stage the usage is fairly simple, but requires using a terminal / console application</p>
+    <p>Unzip the downloaded archive and open a terminal window inside the newly created directory</p>
+
+    <p>
+      It has two usage patterns:  
+    </p>
+
+    <h3>Transmitter</h3> 
+
+    <code>
+      ./frequency_domain_CLI transmitter base_audio secret_audio output_path
+    </code>
+
+    <p>
+      This is the forward operation, which hides secret_audio inside base_audio and 
+      stores the combined result in output_path </br>
+      Note: The 3 supplied parameters are all paths to MONO audio files on disk,
+      with an assumed sample rate of 44.1 kHz. 
+      Its not necessary for output_path to point to an existing file, it will 
+      be automatically created
+    </p>
+
+    <h3>Receiver</h3>
+
+    <code>
+    ./frequency_domain_CLI receiver input_audio output_path
+    </code>
+
+    <p>
+    This is the reverse operation, which retrieves a previously obfuscated
+    hidden message from input_audio and stores the recovered result in
+    output_path </br>
+    Note: The 2 parameters are all paths to MONO audio files on disk with
+          an assumed sample rate of 44.1 kHz
+    </p>
+    
+<h3>Example</h3>
+<p>
+The zip file contains some test audio to work with:
+</br></br>
+daniel_guitar_mono_trimmed.wav: is a recording of a friend of mine playing guitar </br>
+secret_message.wav: is a low quality recording of myself saying something I heard in an old metal gear solid daniel_guitar_mono_trimmed
+</br></br>
+Run: <code>./frequency_domain_CLI transmitter daniel_guitar_mono_trimmed.wav secret_message.wav output.wav</code> </br>
+This will hide "secret message" inside the guitar recording and store the result in output.wav
+</br></br>
+If you listen to the output.wav you shouldn't really notice any difference compared to the base guitar recording 
+file. This means the secret message has been successfully hidden
+</br></br>
+Run: <code>./frequency_domain_CLI receiver output.wav recovered.wav</code></br>
+This will retrieve the hidden message and store it in recovered.wav
+</br></br>
+If you listen to the recovered.wav you should hear an even lower (and much quieter!) version of 
+what we originally put in to the Transmitter
+</p>
+</body>
